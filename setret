@@ -1,25 +1,49 @@
 #!/bin/bash
 
+WHATITDOES="sets Usenet retention in days for SabNZBd, Sick Beard, CouchPotato"
+# Copyright 2015 Elliot Nunn
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 if [ "$#" -ne 1 ]; then
-	echo "setret: sets Usenet retention in days for SabNZBd, Sick Beard"
-	echo "Usage: `basename $0` retention-days"
+	echo setret: $WHATITDOES
+	echo " Usage:" `basename $0` retention-days
 	exit
 fi
 
 
 echo Shutting down services...
-systemctl stop sabnzbd
-systemctl stop sickbeard
+systemctl stop sabnzbd.service
+systemctl stop sickbeard.service
+systemctl stop couchpotato.service
 
 
 sed_sab="sed -i 's/^retention = .*$/retention = $1/' /opt/sabnzbd/sabnzbd.ini"
 echo "#" $sed_sab
 eval "$sed_sab"
 
-sb_sab="sed -i 's/^usenet_retention = .*$/usenet_retention = $1/' /opt/sickbeard/config.ini"
-echo "#" $sb_sab
-eval "$sb_sab"
+sed_sb="sed -i 's/^usenet_retention = .*$/usenet_retention = $1/' /opt/sickbeard/config.ini"
+echo "#" $sed_sb
+eval "$sed_sb"
+
+sed_cp="sed -i 's/^retention = .*$/retention = $1/' /opt/couchpotato/data/settings.conf"
+echo "#" $sed_cp
+eval "$sed_cp"
+
 
 echo Starting them up again...
-systemctl start sabnzbd
-systemctl start sickbeard
+systemctl start sabnzbd.service
+systemctl start sickbeard.service
+systemctl start couchpotato.service
