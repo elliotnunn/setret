@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ]; then
+	echo "setret: sets Usenet retention in days for SabNZBd, Sick Beard"
+	echo "Usage: `basename $0` retention-days"
+	exit
+fi
+
+
+echo Shutting down services...
+systemctl stop sabnzbd
+systemctl stop sickbeard
+
+
+sed_sab="sed -i 's/^retention = .*$/retention = $1/' /opt/sabnzbd/sabnzbd.ini"
+echo "#" $sed_sab
+eval "$sed_sab"
+
+sb_sab="sed -i 's/^usenet_retention = .*$/usenet_retention = $1/' /opt/sickbeard/config.ini"
+echo "#" $sb_sab
+eval "$sb_sab"
+
+echo Starting them up again...
+systemctl start sabnzbd
+systemctl start sickbeard
